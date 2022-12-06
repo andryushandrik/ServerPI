@@ -6,6 +6,8 @@ const Car = sequelize.define('car', {
     model: {type: DataTypes.STRING, allowNull: false},
     year: {type: DataTypes.INTEGER, allowNull: false},
     probeg: {type: DataTypes.INTEGER},
+    inRent: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
+
 })
 
 const User = sequelize.define('user', {

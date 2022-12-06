@@ -24,9 +24,11 @@ router.delete("/car/:id", Role("ADMIN"), CarController.delOne);
 /* Rent */
 router.post("/rent", Role("ADMIN"), RentController.create);
 router.post("/car/:id/rent", Auth, RentController.start);
-router.put("/rent/:id", Auth, RentController.end);
+router.put("/rent/:id/end", Auth, RentController.end);
 router.put("/rent/:id", Role("ADMIN"), RentController.update);
 router.get("/rent/my", Auth, RentController.getMy);
+router.get("/rent/active", Auth, RentController.getActive);
+
 router.get("/rent/my/:id", Auth, RentController.getMyOne);
 router.get("/rent/:id", Role("ADMIN"), RentController.getOne);
 router.get("/rent", Role("ADMIN"), RentController.getAll);

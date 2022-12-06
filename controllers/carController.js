@@ -1,6 +1,6 @@
 const { Car } = require("../models/models");
 const ApiError = require("../error/ApiError");
-const accessedFields = ["model", "year", "probeg"];
+const accessedFields = ["model", "year", "probeg", "inRent"];
 class CarController {
     async create(req, res, next) {
         try {
@@ -14,7 +14,7 @@ class CarController {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const car = await Car.findOne({ id });
+            const car = await Car.findOne({where: { id} });
             car.update(req.body, { fields: accessedFields });
             return res.json(car);
         } catch (error) {
@@ -24,18 +24,20 @@ class CarController {
 
     async getAll(req, res) {
         const cars = await Car.findAll();
+        console.log(req.path);
         return res.json(cars);
     }
 
     async getOne(req, res) {
         const { id } = req.params;
-        const car = await Car.findOne({ id });
+        console.log(id);
+        const car = await Car.findOne({where: { id} });
         return res.json(car);
     }
 
     async delOne(req, res) {
         const { id } = req.params;
-        const car = await Car.findOne({ id });
+        const car = await Car.findOne({where: { id} });
         await car.destroy();
         return res.json(car);
     }

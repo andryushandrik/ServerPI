@@ -16,7 +16,7 @@ class RentController {
     async addMaintenance(req, res, next) {
         try {
             const { id } = req.params;
-            const rent = await Rent.findOne({ id });
+            const rent = await Rent.findOne({ where: { id } });
             if (!rent) {
                 next(ApiError.badRequest("Процедура ТО не найдена!"));
             }
@@ -32,7 +32,7 @@ class RentController {
     async update(req, res, next) {
         try {
             const { id } = req.params;
-            const rent = await Rent.findOne({ id });
+            const rent = await Rent.findOne({ where: { id } });
             rent.update(req.body, { fields: accessedFields });
             return res.json(rent);
         } catch (error) {
@@ -47,13 +47,13 @@ class RentController {
 
     async getOne(req, res) {
         const { id } = req.params;
-        const rent = await Rent.findOne({ id });
+        const rent = await Rent.findOne({ where: { id } });
         return res.json(rent);
     }
 
     async delOne(req, res) {
         const { id } = req.params;
-        const rent = await Rent.findOne({ id });
+        const rent = await Rent.findOne({ where: { id } });
         await rent.destroy();
         return res.json(rent);
     }

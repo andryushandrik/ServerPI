@@ -1,6 +1,6 @@
 const { Rent, Car } = require("../models/models");
 const ApiError = require("../error/ApiError");
-const { where } = require("sequelize");
+const { where, Sequelize } = require("sequelize");
 const accessedFields = [
     "carId",
     "userId",
@@ -24,7 +24,7 @@ class RentController {
     async update(req, res, next) {
         try {
             const { id } = req.params;
-            const rent = await Rent.findOne({ id });
+            const rent = await Rent.findOne({where: { id} });
             rent.update(req.body, { fields: accessedFields });
             return res.json(rent);
         } catch (error) {
@@ -34,15 +34,21 @@ class RentController {
 
     async start(req, res, next) {
         try {
-            const { carId } = req.params,
-                car = await Car.findOne({ carId }),
+            const { id } = req.params,
+                car = await Car.findOne({where: { id} }),
                 userId = req.user.id;
+                console.log(car);
+            if (car.inRent) {
+                return res.status(403).json({ message: "Машина занята" });
+            }
+            
             const rent = await Rent.create({
-                carId,
+                carId: id,
                 userId,
                 startprobeg: car.probeg,
                 starttime: Sequelize.fn("NOW"),
             });
+            const _car = await car.update({inRent: true});
             return res.json(rent);
         } catch (error) {
             next(ApiError.badRequest(error.message));
@@ -52,20 +58,20 @@ class RentController {
     async end(req, res, next) {
         try {
             const { id } = req.params,
-                { probegend } = req.body,
-                rent = await Rent.findOne({ id }),
-                car = await Car.findOne({ id: rent.carId });
-
+                { endprobeg } = req.body,
+                rent = await Rent.findOne({where: { id} }),
+                car = await Car.findOne({where:{ id: rent.carId }});
+            console.log(id);
             if (rent.userId != req.user.id) {
                 return res.status(403).json({ message: "Нет доступа" });
             }
 
-            rent = await rent.update({
-                probegend,
+            const _rent = await rent.update({
+                endprobeg,
                 endtime: Sequelize.fn("NOW"),
             });
-            await car.update({ probeg: probegend });
-            return res.json(rent);
+            const _car = await car.update({ probeg: endprobeg , inRent: false });
+            return res.json(_car);
         } catch (error) {
             next(ApiError.badRequest(error.message));
         }
@@ -86,15 +92,26 @@ class RentController {
         return res.json(rents);
     }
 
+    async getActive(req, res) {
+        const _userId = req.user.id;
+        const rents = await Rent.findAll({
+            where: {
+                userId: _userId,
+                endtime: null,
+            }
+          });
+        return res.json(rents);
+    }
+
     async getOne(req, res) {
         const { id } = req.params;
-        const rent = await Rent.findOne({ id });
+        const rent = await Rent.findOne({where: { id} });
         return res.json(rent);
     }
 
     async getMyOne(req, res) {
         const { id } = req.params;
-        const rent = await Rent.findOne({ id });
+        const rent = await Rent.findOne({where: { id} });
         if (rent.userId != req.user.id) {
             return res.status(403).json({ message: "Нет доступа" });
         }
