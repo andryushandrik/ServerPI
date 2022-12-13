@@ -99,7 +99,7 @@ class RentController {
             where: {
                 userId: _userId,
             },
-            attributes: accessedFields.remove("userId") 
+            attributes: accessedFields.filter(item => item !== "userId") 
         });
         return res.json(rents);
     }
