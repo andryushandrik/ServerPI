@@ -12,7 +12,7 @@ const Role = require("../middleware/checkRoleMiddleware");
 /* User */
 router.post("/registration", UserController.registration);
 router.post("/login", UserController.login);
-router.post("/check", Auth, UserController.check);
+router.get("/check", Auth, UserController.check);
 
 /* Car */
 router.post("/car", Role("ADMIN"), CarController.create);

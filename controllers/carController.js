@@ -38,6 +38,10 @@ class CarController {
     async delOne(req, res) {
         const { id } = req.params;
         const car = await Car.findOne({where: { id} });
+        if (!car) {
+            next(ApiError.badRequest("такой машины нет!"));
+            console.log("машина " + id + " не найдена");
+        }
         await car.destroy();
         return res.json(car);
     }
